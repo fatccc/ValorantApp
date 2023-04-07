@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ultronxr.valorant.bean.mybatis.mapper.StoreFrontMapper">
+    <resultMap id="ResultMap" type="cn.ultronxr.valorant.bean.VO.BatchStoreFrontVO">
+        <result column="username" jdbcType="VARCHAR" property="username" />
+        <result column="user_id" jdbcType="VARCHAR" property="userId" />
+        <result column="is_bonus" jdbcType="TINYINT" property="isBonus" />
+        <result column="date" jdbcType="VARCHAR" property="date" />
+        <result column="cost" jdbcType="INTEGER" property="cost" />
+        <result column="discount_percent" jdbcType="INTEGER" property="discountPercent" />
+        <result column="discount_cost" jdbcType="INTEGER" property="discountCost" />
+        <result column="display_name" jdbcType="VARCHAR" property="displayName" />
+    </resultMap>
+
+    <select id="batchQuerySingle" parameterType="java.lang.String" resultMap="ResultMap">
+        SELECT
+            account.username, store.user_id, store.is_bonus, store.date, store.cost, skin.display_name
+        FROM
+            valorant_store_front AS store, valorant_weapon_skin AS skin, valorant_riot_account AS account
+        <where>
+            store.is_bonus = 0
+            AND store.item_id = skin.uuid
+            AND store.user_id = account.user_id
+            <if test="date != null">
+                AND store.date = #{date}
+            </if>
+            <if test="displayName != null">
+                AND skin.display_name LIKE CONCAT('%', #{displayName}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="batchQueryBonus" parameterType="java.lang.String" resultMap="ResultMap">
+        SELECT
+        account.username, store.user_id, store.is_bonus, store.date, store.cost, store.discount_percent, store.discount_cost, skin.display_name
+        FROM
+        valorant_store_front AS store, valorant_weapon_skin AS skin, valorant_riot_account AS account
+        <where>
+            store.is_bonus = 1
+            AND store.item_id = skin.uuid
+            AND store.user_id = account.user_id
+            <if test="date != null">
+                AND store.date >= #{date}
+            </if>
+            <if test="displayName != null">
+                AND skin.display_name LIKE CONCAT('%', #{displayName}, '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>
