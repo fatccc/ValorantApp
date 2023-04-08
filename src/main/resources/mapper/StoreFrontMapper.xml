@@ -28,6 +28,8 @@
                 AND skin.display_name LIKE CONCAT('%', #{displayName}, '%')
             </if>
         </where>
+        ORDER BY account.username ASC
+        LIMIT 1000
     </select>
 
     <select id="batchQueryBonus" parameterType="java.lang.String" resultMap="ResultMap">
@@ -46,6 +48,8 @@
                 AND skin.display_name LIKE CONCAT('%', #{displayName}, '%')
             </if>
         </where>
+        ORDER BY account.username ASC
+        LIMIT 1000
     </select>
 
 </mapper>

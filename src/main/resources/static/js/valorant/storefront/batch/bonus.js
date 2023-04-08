@@ -21,17 +21,16 @@ table.render({
     // ,height: 500
     ,toolbar: '#toolbar'
     ,cols: [[ //表头
-        {field: 'userId', title: '账号ID', sort: false, align: 'center', width: '10%', style: 'height:150px;',
+        {field: 'userId', title: '用户ID', sort: false, align: 'center', width: '20%', style: 'height:100px;',
             templet: '<div>{{=d.userId}}</div>'}
-        ,{field: 'username', title: '账号名称', sort: false, align: 'center', width: '10%', style: 'height:150px;',
+        ,{field: 'username', title: '用户名', sort: false, align: 'center', width: '10%', style: 'height:100px;',
             templet: '<div>{{=d.username}}</div>'}
-        ,{field: 'date', title: '日期', sort: false, align: 'center', width: '10%', style: 'height:150px;',
+        ,{field: 'date', title: '日期', sort: false, align: 'center', width: '10%', style: 'height:100px;',
             templet: '<div>{{=d.date}}</div>'}
-        ,{field: 'displayName', title: '皮肤名称', sort: false, align: 'center', width: '10%', style: 'height:150px;',
+        ,{field: 'displayName', title: '皮肤名称', sort: false, align: 'center', width: '10%', style: 'height:100px;',
             templet: '<div>{{=d.displayName}}</div>'}
-        ,{field: 'cost', title: '价格', sort: false, align: 'center', width: '5%', style: 'height:150px;',
+        ,{field: 'cost', title: '价格', sort: false, align: 'center', width: '5%', style: 'height:100px;',
             templet: '<div><del>{{=d.cost}} VP</del><br/>-{{=d.discountPercent}}%<br/>{{=d.discountCost}} VP</div>'}
-
     ]]
     ,totalRow: false
 
@@ -126,7 +125,9 @@ function batchUpdateBonus() {
         },
         function () {
             layer.close(this.layerIndex);
-        }
+        },
+        true,
+        200000
     );
 }
 

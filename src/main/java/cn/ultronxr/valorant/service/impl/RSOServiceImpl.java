@@ -17,6 +17,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.net.HttpCookie;
+import java.util.List;
+
 /**
  * @author Ultronxr
  * @date 2023/03/04 12:30
@@ -34,6 +37,13 @@ public class RSOServiceImpl implements RSOService {
     public RSO processRSO(HttpRequest request, String username, String password, String multiFactorCode) {
         if(null == request) {
             return null;
+        }
+
+        // 清空 cookie ，防止服务器记住账号登录
+        List<HttpCookie> cookies = HttpRequest.getCookieManager().getCookieStore().getCookies();
+        if(cookies.size() > 0) {
+            HttpRequest.getCookieManager().getCookieStore().removeAll();
+            log.info("清空cookie");
         }
 
         request.setUrl(RSOUtils.AUTH_URL)
@@ -72,6 +82,7 @@ public class RSOServiceImpl implements RSOService {
             } else if ("response".equals(resType)) {
                 // 解析结果
             } else if ("auth".equals(resType)) {
+                response.close();
                 // 认证错误
                 String error = resObj.getStr("error");
                 if(StringUtils.isNotEmpty(error)) {
@@ -85,6 +96,7 @@ public class RSOServiceImpl implements RSOService {
                     }
                 }
             } else {
+                response.close();
                 // 其他未知情况
                 throw new RSOUnknownResponseTypeException();
             }
@@ -103,6 +115,7 @@ public class RSOServiceImpl implements RSOService {
         log.info("RSO流程第四步：entitlements response = {}", response.body());
 
         resObj = JSONUtil.parseObj(response.body());
+        response.close();
         if(StringUtils.isNotEmpty(resObj.getStr("errorCode"))) {
             throw new RSOEntitlementsErrorException();
         }

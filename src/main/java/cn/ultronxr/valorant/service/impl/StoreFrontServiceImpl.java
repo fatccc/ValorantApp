@@ -8,7 +8,9 @@ import cn.ultronxr.valorant.api.impl.StoreFrontAPI;
 import cn.ultronxr.valorant.auth.RSO;
 import cn.ultronxr.valorant.bean.VO.BatchStoreFrontVO;
 import cn.ultronxr.valorant.bean.VO.StoreFrontVO;
+import cn.ultronxr.valorant.bean.mybatis.bean.RiotAccount;
 import cn.ultronxr.valorant.bean.mybatis.bean.StoreFront;
+import cn.ultronxr.valorant.bean.mybatis.mapper.RiotAccountMapper;
 import cn.ultronxr.valorant.bean.mybatis.mapper.StoreFrontMapper;
 import cn.ultronxr.valorant.exception.APIUnauthorizedException;
 import cn.ultronxr.valorant.service.RSOService;
@@ -18,6 +20,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.jeffreyning.mybatisplus.service.MppServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,6 +49,9 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
 
     @Autowired
     private RSOService rsoService;
+
+    @Autowired
+    private RiotAccountMapper accountMapper;
 
 
     @Override
@@ -170,21 +176,51 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
 
     @Override
     public boolean batchUpdateSingle() {
-        return false;
+        String date = DateUtil.today();
+        List<RiotAccount> accountList = accountMapper.selectList(null);
+        accountList.forEach(account -> {
+            try {
+                singleItemOffers(account.getUserId(), date);
+            } catch (Exception e) {
+                log.error("获取每日商店数据时抛出异常", e);
+            }
+        });
+        return true;
     }
 
     @Override
     public boolean batchUpdateBonus() {
-        return false;
+        String date = DateUtil.today();
+        List<RiotAccount> accountList = accountMapper.selectList(null);
+        accountList.forEach(account -> {
+            try {
+                bonusOffers(account.getUserId(), date);
+            } catch (Exception e) {
+                log.error("获取夜市数据时抛出异常", e);
+            }
+        });
+        return true;
     }
 
     @Override
     public List<BatchStoreFrontVO> batchQuerySingle(String date, String displayName) {
+        if(StringUtils.isEmpty(date)) {
+            date = DateUtil.today();
+        }
+        if(!isNowAfterToday8AM()) {
+            date = addDays(date, -1);
+        }
         return sfMapper.batchQuerySingle(date, displayName);
     }
 
     @Override
     public List<BatchStoreFrontVO> batchQueryBonus(String date, String displayName) {
+        if(StringUtils.isEmpty(date)) {
+            date = DateUtil.today();
+        }
+        if(!isNowAfterToday8AM()) {
+            date = addDays(date, -1);
+        }
         return sfMapper.batchQueryBonus(date, displayName);
     }
 

@@ -20,8 +20,17 @@ server:
 # TRACE DEBUG INFO WARN ERROR FATAL OFF
 logging:
   level:
-    cn.ultronxr.*: debug
-    cn.ultronxr.*.bean.mybatis.mapper: debug
+#    cn.ultronxr.common: debug
+#    cn.ultronxr.valorant.api: debug
+#    cn.ultronxr.valorant.bean.VO: debug
+#    cn.ultronxr.valorant.bean.mybatis.bean: debug
+#    cn.ultronxr.valorant.config: debug
+#    cn.ultronxr.valorant.controller: debug
+#    cn.ultronxr.valorant.exception: debug
+#    cn.ultronxr.valorant.service: debug
+#    cn.ultronxr.valorant.util: debug
+#    cn.ultronxr.*.bean.mybatis.mapper: debug
+    cn.ultronxr.*: info
 
 mybatis-plus:
   type-aliases-package: cn.ultronxr.**.bean.mybatis.bean
