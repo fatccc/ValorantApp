@@ -45,3 +45,21 @@ mybatisGeneratorConfig.xml
 
 # flatten-maven-plugin 生成的文件
 .flattened-pom.xml
+
+# 打包成 exe（注意子文件夹需要使用特殊写法）
+/exe/mysql-8.0.28-winx64/*
+!/exe/mysql-8.0.28-winx64/my.ini
+!/exe/mysql-8.0.28-winx64/valorant_dev.sql
+!/exe/mysql-8.0.28-winx64/bin/
+
+/exe/mysql-8.0.28-winx64/bin/*
+!/exe/mysql-8.0.28-winx64/bin/mysql_init.bat
+!/exe/mysql-8.0.28-winx64/bin/mysql_uninstall.bat
+
+/exe/openjdk-11.0.10+9-jre/
+
+/exe/output/*
+!/exe/output/ValorantApp.exe4j
+!/exe/output/ValorantApp.iss
+
+/exe/application*.yml

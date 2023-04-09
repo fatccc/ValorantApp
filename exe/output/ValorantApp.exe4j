@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exe4j version="8.0.1" transformSequenceNumber="3">
+  <directoryPresets config="D:/AllFilesCode/workspace/IntelliJIDEA/ValorantApp/target" />
+  <application name="ValorantApp" distributionSourceDir="D:/AllFilesCode/workspace/IntelliJIDEA/ValorantApp/exe/output" />
+  <executable name="ValorantApp" wrapperType="embed" executableDir="." redirectStderr="false" executableMode="console" singleInstance="true" />
+  <java mainClass="org.springframework.boot.loader.JarLauncher" vmParameters="-Dfile.encoding=utf-8" preferredVM="client" minVersion="11.0.10">
+    <searchSequence>
+      <directory location="./openjdk-11.0.10+9-jre" />
+      <directory location="../openjdk-11.0.10+9-jre" />
+    </searchSequence>
+    <classPath>
+      <archive location="D:/AllFilesCode/workspace/IntelliJIDEA/ValorantApp/target/ValorantApp-1.0-SNAPSHOT.jar" failOnError="false" />
+    </classPath>
+  </java>
+</exe4j>
