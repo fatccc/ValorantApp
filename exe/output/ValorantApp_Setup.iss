@@ -4,7 +4,8 @@
 #define MyAppName "ValorantApp"
 #define MyAppVersion "1.0"
 #define MyAppPublisher "Ultronxr"
-#define MyAppExeName "ValorantApp.exe"
+#define MyAppURL "https://github.com/Ultronxr/ValorantApp"
+#define MyAppExeName "ValorantApp_jar.exe"
 #define WorkPath "D:\AllFilesCode\workspace\IntelliJIDEA\ValorantApp\exe"
 
 [Setup]
@@ -16,8 +17,12 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
+AppPublisherURL={#MyAppURL}
+AppSupportURL={#MyAppURL}
+AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
-DisableProgramGroupPage=yes
+DefaultGroupName={#MyAppName}
+; DisableProgramGroupPage=yes
 ; 以下行取消注释，以在非管理安装模式下运行（仅为当前用户安装）。
 ;PrivilegesRequired=lowest
 OutputBaseFilename=ValorantAppSetup
@@ -32,7 +37,7 @@ Name: "chinesesimp"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "{#WorkPath}\output\ValorantApp.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#WorkPath}\output\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#WorkPath}\openjdk-11.0.10+9-jre\*"; DestDir: "{app}\openjdk-11.0.10+9-jre"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#WorkPath}\mysql-8.0.28-winx64\*"; DestDir: "{app}\mysql-8.0.28-winx64"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; 注意: 不要在任何共享系统文件上使用“Flags: ignoreversion”
@@ -45,6 +50,11 @@ Filename:"{app}\mysql-8.0.28-winx64\my.ini";Section:"mysqld";Key:"datadir"; Stri
 ;Filename:"{app}\mysql-8.0.28-winx64\my.ini";Section:"client";Key:"port"; String:"3308"
 
 [Icons]
+; 开始菜单文件夹：包括应用程序快捷方式、浏览器链接、程序卸载快捷方式
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}"
+Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
+; 单独的图标：开始菜单快捷方式、桌面快捷方式
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 

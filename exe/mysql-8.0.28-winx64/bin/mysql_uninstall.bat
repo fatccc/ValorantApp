@@ -1,10 +1,15 @@
 @echo off
-title 软件正在卸载中，请不要关闭
+
+chcp 65001
+
+title 正在卸载MySQL
+
 cd /d %~dp0
 net stop mysql
 cd ..
 cd bin
 mysqld --remove
-wmic ENVIRONMENT where "name='MYSQL_HOME'" delete
-echo 删除成功
+:: wmic ENVIRONMENT where "name='MYSQL_HOME'" delete
+echo MySQL卸载成功
+
 exit

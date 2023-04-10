@@ -59,7 +59,7 @@ mybatisGeneratorConfig.xml
 /exe/openjdk-11.0.10+9-jre/
 
 /exe/output/*
-!/exe/output/ValorantApp.exe4j
-!/exe/output/ValorantApp.iss
+!/exe/output/ValorantApp_jar.exe4j
+!/exe/output/ValorantApp_Setup.iss
 
 /exe/application*.yml
