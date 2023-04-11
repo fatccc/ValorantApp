@@ -17,20 +17,8 @@ server:
   servlet:
     context-path: /
 
-# TRACE DEBUG INFO WARN ERROR FATAL OFF
 logging:
-  level:
-#    cn.ultronxr.common: debug
-#    cn.ultronxr.valorant.api: debug
-#    cn.ultronxr.valorant.bean.VO: debug
-#    cn.ultronxr.valorant.bean.mybatis.bean: debug
-#    cn.ultronxr.valorant.config: debug
-#    cn.ultronxr.valorant.controller: debug
-#    cn.ultronxr.valorant.exception: debug
-#    cn.ultronxr.valorant.service: debug
-#    cn.ultronxr.valorant.util: debug
-#    cn.ultronxr.*.bean.mybatis.mapper: debug
-    cn.ultronxr.*: info
+  config: classpath:logback-spring.xml
 
 mybatis-plus:
   type-aliases-package: cn.ultronxr.**.bean.mybatis.bean
@@ -43,7 +31,6 @@ mybatis-plus:
       where-strategy: not_empty
   configuration:
     map-underscore-to-camel-case: true
-#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 # springboot actuator 配置，参见 {@link https://www.cnblogs.com/caoweixiong/p/15325382.html}
 management:
