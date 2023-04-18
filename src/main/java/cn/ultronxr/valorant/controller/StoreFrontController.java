@@ -62,6 +62,15 @@ public class StoreFrontController {
         return AjaxResponseUtils.fail();
     }
 
+    @PostMapping("/batchUpdateBoth")
+    @ResponseBody
+    public AjaxResponse batchUpdateBoth() {
+        if(sfService.batchUpdateBoth()) {
+            return AjaxResponseUtils.success();
+        }
+        return AjaxResponseUtils.fail();
+    }
+
     @GetMapping("/batchQuerySingle")
     @ResponseBody
     public AjaxResponse batchQuerySingle(String displayName) {
@@ -72,6 +81,13 @@ public class StoreFrontController {
     @ResponseBody
     public AjaxResponse batchQueryBonus(String displayName) {
         return AjaxResponseUtils.success(sfService.batchQueryBonus(null, displayName));
+    }
+
+    @GetMapping("/batchQueryBoth")
+    @ResponseBody
+    public AjaxResponse batchQueryBoth(String skin1, String skin2, String skin3, String skin4,
+                                       String bonusSkin1, String bonusSkin2, String bonusSkin3) {
+        return AjaxResponseUtils.success(sfService.batchQueryBoth(null, skin1, skin2, skin3, skin4, bonusSkin1, bonusSkin2, bonusSkin3));
     }
 
 }

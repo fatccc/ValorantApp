@@ -6,6 +6,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONObject;
 import cn.ultronxr.valorant.api.impl.StoreFrontAPI;
 import cn.ultronxr.valorant.auth.RSO;
+import cn.ultronxr.valorant.bean.VO.BatchBothStoreFrontVO;
 import cn.ultronxr.valorant.bean.VO.BatchStoreFrontVO;
 import cn.ultronxr.valorant.bean.VO.StoreFrontVO;
 import cn.ultronxr.valorant.bean.mybatis.bean.RiotAccount;
@@ -20,14 +21,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.jeffreyning.mybatisplus.service.MppServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Ultronxr
@@ -70,6 +70,33 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
             // 既然请求API了，那么顺便更新一下夜市数据
             List<StoreFront> byTheWayList = sfAPI.getBonusOffers(jObj, userId);
             this.saveOrUpdateBatchByMultiId(byTheWayList);
+        }
+
+        return list;
+    }
+
+    @Override
+    public List<StoreFront> singleItemOffersWithSleep(String userId, String date, int sleepSeconds) {
+        log.info("获取每日商店数据（WithSleep）：userId={} , date={}", userId, date);
+        List<StoreFront> list = queryDB(userId, date, false);
+
+        if((null == list || list.isEmpty()) && isDateValid(date)) {
+            log.info("数据库没有对应的每日商店数据，尝试请求API获取：userId={} , date={}", userId, date);
+            JSONObject jObj = requestAPI(userId);
+            list = sfAPI.getSingleItemOffers(jObj, userId);
+            this.saveOrUpdateBatchByMultiId(list);
+
+            // 既然请求API了，那么顺便更新一下夜市数据
+            List<StoreFront> byTheWayList = sfAPI.getBonusOffers(jObj, userId);
+            this.saveOrUpdateBatchByMultiId(byTheWayList);
+
+            // 请求API之后等待时间
+            try {
+                log.info("请求API后等待时间：{} 秒", sleepSeconds);
+                Thread.sleep(1000L * sleepSeconds);
+            } catch (InterruptedException e) {
+                log.warn("Thread.sleep 抛出异常！", e);
+            }
         }
 
         return list;
@@ -195,14 +222,7 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
         List<RiotAccount> accountList = accountMapper.selectList(null);
         accountList.forEach(account -> {
             singleItemOffers(account.getUserId(), date);
-            try {
-                // 拳头API速率限制：100 requests every 2 minutes
-                // 处理一个账号数据需要请求4-6次API（包括RSO认证），2分钟的请求上限为20个账号，即6秒处理一个账号
-                // 实测处理一个账号数据请求时间为1.5秒左右，添加 sleep
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                log.warn("Thread sleep 抛出异常！", e);
-            }
+            // sleep
         });
         return true;
     }
@@ -215,11 +235,22 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
         List<RiotAccount> accountList = accountMapper.selectList(null);
         accountList.forEach(account -> {
             bonusOffers(account.getUserId(), date);
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                log.warn("Thread sleep 抛出异常！", e);
-            }
+            // sleep
+        });
+        return true;
+    }
+
+    @Override
+    public boolean batchUpdateBoth() {
+        log.info("批量更新每日商店+夜市数据。");
+
+        String date = DateUtil.today();
+        List<RiotAccount> accountList = accountMapper.selectList(null);
+        accountList.forEach(account -> {
+            // 拳头API速率限制：100 requests every 2 minutes
+            // 处理一个账号数据需要请求4-6次API（包括RSO认证），2分钟的请求上限为20个账号，即6秒处理一个账号
+            // 实测处理一个账号数据请求时间为1.5秒左右，添加 sleep
+            singleItemOffersWithSleep(account.getUserId(), date, 5);
         });
         return true;
     }
@@ -244,6 +275,33 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
             date = addDays(date, -1);
         }
         return sfMapper.batchQueryBonus(date, displayName);
+    }
+
+    @Override
+    public List<BatchBothStoreFrontVO> batchQueryBoth(String date, String skin1, String skin2, String skin3, String skin4,
+                                                      String bonusSkin1, String bonusSkin2, String bonusSkin3) {
+        log.info("批量查询每日商店+夜市数据，date={}, skin1={}, skin2={}, skin3={}, skin4={}, bonusSkin1={}, bonusSkin2={}, bonusSkin3={}",
+                date, skin1, skin2, skin3, skin4, bonusSkin1, bonusSkin2, bonusSkin3);
+        if(StringUtils.isEmpty(date)) {
+            date = DateUtil.today();
+        }
+        if(!isNowAfterToday8AM()) {
+            date = addDays(date, -1);
+        }
+        LinkedList<BatchBothStoreFrontVO> list = sfMapper.batchQueryBoth(date, skin1, skin2, skin3, skin4, bonusSkin1, bonusSkin2, bonusSkin3);
+        if(CollectionUtils.isNotEmpty(list)) {
+            // 把夜市的数据合并到每日商店数据中（两条数据合并为一条）
+            // SQL查询出来的总是 同一个账号的两条数据相连，且每日商店数据在夜市数据前面
+            for (int i = 0; i < list.size() - 1; i++) {
+                if(!list.get(i).getIsBonus() && list.get(i+1).getIsBonus()
+                        && list.get(i).getUserId().equals(list.get(i+1).getUserId())) {
+                    list.get(i).setBonusOffer(list.get(i+1));
+                }
+            }
+            // 删除夜市的数据条目
+            list.removeIf(BatchBothStoreFrontVO::getIsBonus);
+        }
+        return list;
     }
 
 }

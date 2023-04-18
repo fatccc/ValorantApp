@@ -1,5 +1,6 @@
 package cn.ultronxr.valorant.service;
 
+import cn.ultronxr.valorant.bean.VO.BatchBothStoreFrontVO;
 import cn.ultronxr.valorant.bean.VO.BatchStoreFrontVO;
 import cn.ultronxr.valorant.bean.VO.StoreFrontVO;
 import cn.ultronxr.valorant.bean.mybatis.bean.StoreFront;
@@ -23,6 +24,15 @@ public interface StoreFrontService extends IMppService<StoreFront> {
     List<StoreFront> singleItemOffers(String userId, String date);
 
     /**
+     * 获取每日刷新的商店，如果请求了API，加入 Thread.sleep 等待时间，限制API请求速率
+     * @param userId 拳头账户ID
+     * @param date   日期
+     * @param sleepSeconds 请求API之后的等待时间（秒）
+     * @return 商品列表
+     */
+    List<StoreFront> singleItemOffersWithSleep(String userId, String date, int sleepSeconds);
+
+    /**
      * 获取夜市商品
      * @param userId 拳头账户ID
      * @param date   日期
@@ -39,15 +49,18 @@ public interface StoreFrontService extends IMppService<StoreFront> {
 
     /**
      * 批量更新所有账号的每日商店
-     * @return 商品列表
      */
     boolean batchUpdateSingle();
 
     /**
      * 批量更新所有账号的夜市数据
-     * @return 商品列表
      */
     boolean batchUpdateBonus();
+
+    /**
+     * 批量更新所有账号的每日商店+夜市
+     */
+    boolean batchUpdateBoth();
 
     /**
      * 查询所有账号的每日商店，是否在指定日期存在指定的皮肤
@@ -60,5 +73,12 @@ public interface StoreFrontService extends IMppService<StoreFront> {
      * @return 商品列表
      */
     List<BatchStoreFrontVO> batchQueryBonus(String date, String displayName);
+
+    /**
+     * 查询所有账号的每日商店+夜市
+     * @return 商品列表
+     */
+    List<BatchBothStoreFrontVO> batchQueryBoth(String date, String skin1, String skin2, String skin3, String skin4,
+                                               String bonusSkin1, String bonusSkin2, String bonusSkin3);
 
 }

@@ -52,4 +52,85 @@
         LIMIT 1000
     </select>
 
+    <resultMap id="ResultMapBatchBoth" type="cn.ultronxr.valorant.bean.VO.BatchBothStoreFrontVO">
+        <result column="username" jdbcType="VARCHAR" property="username" />
+        <result column="user_id" jdbcType="VARCHAR" property="userId" />
+        <result column="is_bonus" jdbcType="TINYINT" property="isBonus" />
+        <result column="date" jdbcType="VARCHAR" property="date" />
+        <result column="cost_list" jdbcType="VARCHAR" property="costList" typeHandler="cn.ultronxr.valorant.typeHandler.IntegerArrayTypeHandler" />
+        <result column="discount_percent_list" jdbcType="VARCHAR" property="discountPercentList" typeHandler="cn.ultronxr.valorant.typeHandler.IntegerArrayTypeHandler" />
+        <result column="discount_cost_list" jdbcType="VARCHAR" property="discountCostList" typeHandler="cn.ultronxr.valorant.typeHandler.IntegerArrayTypeHandler" />
+        <result column="display_name_list" jdbcType="VARCHAR" property="displayNameList" typeHandler="cn.ultronxr.valorant.typeHandler.StringArrayTypeHandler" />
+    </resultMap>
+
+    <select id="batchQueryBoth" parameterType="java.lang.Object" resultMap="ResultMapBatchBoth">
+        SELECT
+            account.username, store.user_id, store.is_bonus, store.date,
+            CONCAT('[', GROUP_CONCAT(store.cost), ']') AS cost_list,
+            CONCAT('[', GROUP_CONCAT(store.discount_percent), ']') AS discount_percent_list,
+            CONCAT('[', GROUP_CONCAT(store.discount_cost), ']') AS discount_cost_list,
+            CONCAT('[', GROUP_CONCAT(skin.display_name), ']') AS display_name_list
+        FROM
+            valorant_store_front AS store, valorant_weapon_skin AS skin, valorant_riot_account AS account
+        WHERE
+            store.item_id = skin.uuid
+            AND store.user_id = account.user_id
+            AND store.date >= #{date}
+            AND store.user_id IN
+                (SELECT single.user_id FROM (
+                    (SELECT
+                        store.user_id, GROUP_CONCAT(skin.display_name) AS display_name_list
+                    FROM
+                        valorant_store_front AS store, valorant_weapon_skin AS skin
+                    WHERE
+                        store.item_id = skin.uuid
+                        AND store.date = #{date}
+                        AND store.is_bonus = 0
+                    GROUP BY
+                        store.user_id, store.is_bonus, store.date
+                    HAVING
+                        1
+                        <if test="skin1 != null">
+                            AND display_name_list LIKE CONCAT('%', #{skin1}, '%')
+                        </if>
+                        <if test="skin2 != null">
+                            AND display_name_list LIKE CONCAT('%', #{skin2}, '%')
+                        </if>
+                        <if test="skin3 != null">
+                            AND display_name_list LIKE CONCAT('%', #{skin3}, '%')
+                        </if>
+                        <if test="skin4 != null">
+                            AND display_name_list LIKE CONCAT('%', #{skin4}, '%')
+                        </if>
+                    ) AS single
+                INNER JOIN
+                    (SELECT
+                        store.user_id, GROUP_CONCAT(skin.display_name) AS display_name_list
+                    FROM
+                        valorant_store_front AS store, valorant_weapon_skin AS skin
+                    WHERE
+                        store.item_id = skin.uuid
+                        AND store.date >= #{date}
+                        AND store.is_bonus = 1
+                    GROUP BY
+                        store.user_id, store.is_bonus, store.date
+                    HAVING
+                        1
+                        <if test="bonusSkin1 != null">
+                            AND display_name_list LIKE CONCAT('%', #{bonusSkin1}, '%')
+                        </if>
+                        <if test="bonusSkin2 != null">
+                            AND display_name_list LIKE CONCAT('%', #{bonusSkin2}, '%')
+                        </if>
+                        <if test="bonusSkin3 != null">
+                            AND display_name_list LIKE CONCAT('%', #{bonusSkin3}, '%')
+                        </if>
+                    ) AS bonus
+                ON single.user_id = bonus.user_id))
+        GROUP BY
+            store.user_id, store.is_bonus, store.date
+        ORDER BY
+            user_id ASC, is_bonus ASC
+    </select>
+
 </mapper>
