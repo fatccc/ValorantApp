@@ -82,6 +82,7 @@ public class RSOServiceImpl implements RSOService {
             } else if ("response".equals(resType)) {
                 // 解析结果
             } else if ("auth".equals(resType)) {
+                log.warn("RSO流程失败：response headers = {}", response.headers());
                 response.close();
                 // 认证错误
                 String error = resObj.getStr("error");
@@ -96,6 +97,7 @@ public class RSOServiceImpl implements RSOService {
                     }
                 }
             } else {
+                log.warn("RSO流程失败：response headers = {}", response.headers());
                 response.close();
                 // 其他未知情况
                 throw new RSOUnknownResponseTypeException();

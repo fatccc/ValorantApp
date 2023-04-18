@@ -44,48 +44,68 @@ public class StoreFrontAPI extends BaseAPI {
     }
 
     public List<StoreFront> getSingleItemOffers(JSONObject rootJsonObj, String userId) {
+        log.info("正在尝试解析每日商店 json 数据");
         List<StoreFront> list = new ArrayList<>();
-        Long remainDurationInSeconds = rootJsonObj.getByPath("SkinsPanelLayout.SingleItemOffersRemainingDurationInSeconds", Long.class);
-        JSONArray singleItemOffersArray = rootJsonObj.getByPath("SkinsPanelLayout.SingleItemStoreOffers", JSONArray.class);
-        singleItemOffersArray.forEach(obj -> {
-            JSONObject jObj = (JSONObject) obj;
-            StoreFront storeFront = new StoreFront();
-            storeFront.setUserId(userId);
-            storeFront.setOfferId(jObj.getStr("OfferID"));
-            storeFront.setIsDirectPurchase(jObj.getBool("IsDirectPurchase"));
-            storeFront.setDate(parseResponseDate(jObj.getStr("StartDate"), remainDurationInSeconds));
-            storeFront.setCurrencyId(GAME_CURRENCY_VP_ID);
-            storeFront.setCost(jObj.getJSONObject("Cost").getInt(GAME_CURRENCY_VP_ID));
-            storeFront.setItemTypeId(jObj.getByPath("Rewards[0].ItemTypeID", String.class));
-            storeFront.setItemId(jObj.getByPath("Rewards[0].ItemID", String.class));
-            storeFront.setQuantity(jObj.getByPath("Rewards[0].Quantity", Integer.class));
-            storeFront.setIsBonus(false);
-            list.add(storeFront);
-        });
+        try {
+            Long remainDurationInSeconds = rootJsonObj.getByPath("SkinsPanelLayout.SingleItemOffersRemainingDurationInSeconds", Long.class);
+            JSONArray singleItemOffersArray = rootJsonObj.getByPath("SkinsPanelLayout.SingleItemStoreOffers", JSONArray.class);
+            if(null == singleItemOffersArray || singleItemOffersArray.isEmpty()) {
+                log.info("每日商店 json 数据为空。");
+                return list;
+            }
+            singleItemOffersArray.forEach(obj -> {
+                JSONObject jObj = (JSONObject) obj;
+                StoreFront storeFront = new StoreFront();
+                storeFront.setUserId(userId);
+                storeFront.setOfferId(jObj.getStr("OfferID"));
+                storeFront.setIsDirectPurchase(jObj.getBool("IsDirectPurchase"));
+                storeFront.setDate(parseResponseDate(jObj.getStr("StartDate"), remainDurationInSeconds));
+                storeFront.setCurrencyId(GAME_CURRENCY_VP_ID);
+                storeFront.setCost(jObj.getJSONObject("Cost").getInt(GAME_CURRENCY_VP_ID));
+                storeFront.setItemTypeId(jObj.getByPath("Rewards[0].ItemTypeID", String.class));
+                storeFront.setItemId(jObj.getByPath("Rewards[0].ItemID", String.class));
+                storeFront.setQuantity(jObj.getByPath("Rewards[0].Quantity", Integer.class));
+                storeFront.setIsBonus(false);
+                list.add(storeFront);
+            });
+        } catch (Exception e) {
+            log.warn("每日商店 json 内容解析失败！", e);
+        }
+        log.info("解析每日商店 json 数据完成。");
         return list;
     }
 
     public List<StoreFront> getBonusOffers(JSONObject rootJsonObj, String userId) {
+        log.info("正在尝试解析夜市 json 内容");
         List<StoreFront> list = new ArrayList<>();
-        Long remainDurationInSeconds = rootJsonObj.getByPath("BonusStore.BonusStoreRemainingDurationInSeconds", Long.class);
-        JSONArray bonusOffersArray = rootJsonObj.getByPath("BonusStore.BonusStoreOffers", JSONArray.class);
-        bonusOffersArray.forEach(obj -> {
-            JSONObject jObj = (JSONObject) obj;
-            StoreFront storeFront = new StoreFront();
-            storeFront.setUserId(userId);
-            storeFront.setOfferId(jObj.getByPath("Offer.OfferID", String.class));
-            storeFront.setIsDirectPurchase(jObj.getByPath("Offer.IsDirectPurchase", Boolean.class));
-            storeFront.setDate(parseResponseDate(jObj.getByPath("Offer.StartDate", String.class), remainDurationInSeconds));
-            storeFront.setCurrencyId(GAME_CURRENCY_VP_ID);
-            storeFront.setCost(jObj.getByPath("Offer.Cost", JSONObject.class).getInt(GAME_CURRENCY_VP_ID));
-            storeFront.setItemTypeId(jObj.getByPath("Offer.Rewards[0].ItemTypeID", String.class));
-            storeFront.setItemId(jObj.getByPath("Offer.Rewards[0].ItemID", String.class));
-            storeFront.setQuantity(jObj.getByPath("Offer.Rewards[0].Quantity", Integer.class));
-            storeFront.setDiscountPercent(jObj.getInt("DiscountPercent"));
-            storeFront.setDiscountCost(jObj.getJSONObject("DiscountCosts").getInt(GAME_CURRENCY_VP_ID));
-            storeFront.setIsBonus(true);
-            list.add(storeFront);
-        });
+        try {
+            Long remainDurationInSeconds = rootJsonObj.getByPath("BonusStore.BonusStoreRemainingDurationInSeconds", Long.class);
+            JSONArray bonusOffersArray = rootJsonObj.getByPath("BonusStore.BonusStoreOffers", JSONArray.class);
+            if(null == bonusOffersArray || bonusOffersArray.isEmpty()) {
+                log.info("夜市 json 数据为空。");
+                return list;
+            }
+            bonusOffersArray.forEach(obj -> {
+                JSONObject jObj = (JSONObject) obj;
+                StoreFront storeFront = new StoreFront();
+                storeFront.setUserId(userId);
+                storeFront.setOfferId(jObj.getByPath("Offer.OfferID", String.class));
+                storeFront.setIsDirectPurchase(jObj.getByPath("Offer.IsDirectPurchase", Boolean.class));
+                storeFront.setDate(parseResponseDate(jObj.getByPath("Offer.StartDate", String.class), remainDurationInSeconds));
+                storeFront.setCurrencyId(GAME_CURRENCY_VP_ID);
+                storeFront.setCost(jObj.getByPath("Offer.Cost", JSONObject.class).getInt(GAME_CURRENCY_VP_ID));
+                storeFront.setItemTypeId(jObj.getByPath("Offer.Rewards[0].ItemTypeID", String.class));
+                storeFront.setItemId(jObj.getByPath("Offer.Rewards[0].ItemID", String.class));
+                storeFront.setQuantity(jObj.getByPath("Offer.Rewards[0].Quantity", Integer.class));
+                storeFront.setDiscountPercent(jObj.getInt("DiscountPercent"));
+                storeFront.setDiscountCost(jObj.getJSONObject("DiscountCosts").getInt(GAME_CURRENCY_VP_ID));
+                storeFront.setIsBonus(true);
+                list.add(storeFront);
+            });
+        } catch (Exception e) {
+            log.warn("夜市 json 内容解析失败！", e);
+        }
+        log.info("解析夜市 json 数据完成。");
         return list;
     }
 

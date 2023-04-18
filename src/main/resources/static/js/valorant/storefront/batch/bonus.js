@@ -127,7 +127,7 @@ function batchUpdateBonus() {
             layer.close(this.layerIndex);
         },
         true,
-        200000
+        8000000
     );
 }
 

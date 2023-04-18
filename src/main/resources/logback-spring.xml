@@ -21,7 +21,7 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>logs/ValorantApp.%d.%i.log</fileNamePattern>
             <maxHistory>60</maxHistory>
-            <totalSizeCap>5GB</totalSizeCap>
+            <totalSizeCap>2GB</totalSizeCap>
             <maxFileSize>10MB</maxFileSize>
         </rollingPolicy>
         <encoder>
@@ -40,7 +40,7 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>logs/ValorantApp_error.%d.%i.log</fileNamePattern>
             <maxHistory>60</maxHistory>
-            <totalSizeCap>5GB</totalSizeCap>
+            <totalSizeCap>2GB</totalSizeCap>
             <maxFileSize>10MB</maxFileSize>
         </rollingPolicy>
         <encoder>
@@ -55,8 +55,8 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>logs/ValorantApp_sql.%d.%i.log</fileNamePattern>
             <maxHistory>30</maxHistory>
-            <totalSizeCap>5GB</totalSizeCap>
-            <maxFileSize>10MB</maxFileSize>
+            <totalSizeCap>1GB</totalSizeCap>
+            <maxFileSize>30MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - [%15(%thread)] %-55.55(%logger{50}:%line) : %msg%n</pattern>

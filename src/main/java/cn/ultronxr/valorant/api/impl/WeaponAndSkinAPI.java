@@ -35,6 +35,7 @@ public class WeaponAndSkinAPI extends BaseAPI {
 
     @Transactional(rollbackFor = Exception.class)
     public void processAndUpdateDB() {
+        log.info("正在更新武器皮肤数据库...");
         String responseBody = requestAPI(WEAPON_API, null);
         if(StringUtils.isEmpty(responseBody)) {
             return;

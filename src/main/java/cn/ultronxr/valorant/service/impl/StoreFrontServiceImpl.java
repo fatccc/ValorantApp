@@ -56,14 +56,20 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
 
     @Override
     public List<StoreFront> singleItemOffers(String userId, String date) {
+        log.info("获取每日商店数据：userId={} , date={}", userId, date);
         List<StoreFront> list = queryDB(userId, date, false);
 
         // 如果数据库中没有数据且过了今天8点，则请求API获取，并插入数据库
         // 注意：已经过去的日期是无法再通过接口获取数据的，如果当天没有存入数据库，那么只能返回空结果！
         if((null == list || list.isEmpty()) && isDateValid(date)) {
+            log.info("数据库没有对应的每日商店数据，尝试请求API获取：userId={} , date={}", userId, date);
             JSONObject jObj = requestAPI(userId);
             list = sfAPI.getSingleItemOffers(jObj, userId);
             this.saveOrUpdateBatchByMultiId(list);
+
+            // 既然请求API了，那么顺便更新一下夜市数据
+            List<StoreFront> byTheWayList = sfAPI.getBonusOffers(jObj, userId);
+            this.saveOrUpdateBatchByMultiId(byTheWayList);
         }
 
         return list;
@@ -71,13 +77,18 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
 
     @Override
     public List<StoreFront> bonusOffers(String userId, String date) {
+        log.info("获取夜市数据：userId={} , date={}", userId, date);
         List<StoreFront> list = queryDB(userId, date, true);
 
         // 如果数据库中没有数据，则请求API获取，并插入数据库
         if((null == list || list.isEmpty()) && isDateValid(date)) {
+            log.info("数据库没有对应的夜市数据，尝试请求API获取：userId={} , date={}", userId, date);
             JSONObject jObj = requestAPI(userId);
             list = sfAPI.getBonusOffers(jObj, userId);
             this.saveOrUpdateBatchByMultiId(list);
+
+            List<StoreFront> byTheWayList = sfAPI.getSingleItemOffers(jObj, userId);
+            this.saveOrUpdateBatchByMultiId(byTheWayList);
         }
 
         return list;
@@ -87,16 +98,18 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
         JSONObject jObj = null;
         RSO rso = rsoService.fromAccount(userId);
         try {
+            log.info("正在请求 StoreFront API ，userId={}", userId);
             jObj = sfAPI.process(rso);
         } catch (APIUnauthorizedException e1) {
-            log.info("RSO token 已过期，尝试更新 token ...");
+            log.info("RSO token 已过期，尝试更新 token ，userId={}", userId);
             rso = rsoService.updateRSO(userId);
             try {
                 jObj = sfAPI.process(rso);
             } catch (APIUnauthorizedException e2) {
-
+                log.warn("StoreFront API 账号验证失败！");
             }
         }
+        log.info("StoreFront API response=\n{}", jObj);
         return jObj;
     }
 
@@ -176,13 +189,19 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
 
     @Override
     public boolean batchUpdateSingle() {
+        log.info("批量更新每日商店数据。");
+
         String date = DateUtil.today();
         List<RiotAccount> accountList = accountMapper.selectList(null);
         accountList.forEach(account -> {
+            singleItemOffers(account.getUserId(), date);
             try {
-                singleItemOffers(account.getUserId(), date);
-            } catch (Exception e) {
-                log.error("获取每日商店数据时抛出异常", e);
+                // 拳头API速率限制：100 requests every 2 minutes
+                // 处理一个账号数据需要请求4-6次API（包括RSO认证），2分钟的请求上限为20个账号，即6秒处理一个账号
+                // 实测处理一个账号数据请求时间为1.5秒左右，添加 sleep
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                log.warn("Thread sleep 抛出异常！", e);
             }
         });
         return true;
@@ -190,13 +209,16 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
 
     @Override
     public boolean batchUpdateBonus() {
+        log.info("批量更新夜市数据。");
+
         String date = DateUtil.today();
         List<RiotAccount> accountList = accountMapper.selectList(null);
         accountList.forEach(account -> {
+            bonusOffers(account.getUserId(), date);
             try {
-                bonusOffers(account.getUserId(), date);
-            } catch (Exception e) {
-                log.error("获取夜市数据时抛出异常", e);
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                log.warn("Thread sleep 抛出异常！", e);
             }
         });
         return true;

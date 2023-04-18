@@ -33,14 +33,17 @@ public class RiotAccountServiceImpl extends ServiceImpl<RiotAccountMapper, RiotA
 
     @Override
     public boolean create(RiotAccount account) {
+        log.info("添加拳头账号：{}", account);
         RSO rso = rsoService.getRSOByAccount(account);
         if(null != rso) {
             account.setUserId(rso.getUserId());
             account.setAccessToken(rso.getAccessToken());
             account.setEntitlementsToken(rso.getEntitlementsToken());
             this.save(account);
+            log.info("拳头账号添加成功。username={}", account.getUsername());
             return true;
         }
+        log.info("拳头账号添加失败，RSO验证未通过！");
         return false;
     }
 

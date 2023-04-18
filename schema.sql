@@ -4,3 +4,5 @@ GRANT Alter, Alter Routine, Create, Create Routine, Create Temporary Tables, Cre
 
 
 CREATE DATABASE `valorant_dev` DEFAULT CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_general_ci';
+
+### 详细表结构及数据查看 /exe/mysql-8.0.28-winx64/valorant_dev.sql
