@@ -50,11 +50,13 @@ public interface StoreFrontService extends IMppService<StoreFront> {
     /**
      * 批量更新所有账号的每日商店
      */
+    @Deprecated
     boolean batchUpdateSingle();
 
     /**
      * 批量更新所有账号的夜市数据
      */
+    @Deprecated
     boolean batchUpdateBonus();
 
     /**
@@ -66,12 +68,14 @@ public interface StoreFrontService extends IMppService<StoreFront> {
      * 查询所有账号的每日商店，是否在指定日期存在指定的皮肤
      * @return 商品列表
      */
+    @Deprecated
     List<BatchStoreFrontVO> batchQuerySingle(String date, String displayName);
 
     /**
      * 查询所有账号的夜市，是否在指定日期存在指定的皮肤
      * @return 商品列表
      */
+    @Deprecated
     List<BatchStoreFrontVO> batchQueryBonus(String date, String displayName);
 
     /**

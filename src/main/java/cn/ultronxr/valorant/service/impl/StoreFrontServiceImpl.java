@@ -250,11 +250,12 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
             // 拳头API速率限制：100 requests every 2 minutes
             // 处理一个账号数据需要请求4-6次API（包括RSO认证），2分钟的请求上限为20个账号，即6秒处理一个账号
             // 实测处理一个账号数据请求时间为1.5秒左右，添加 sleep
-            singleItemOffersWithSleep(account.getUserId(), date, 5);
+            singleItemOffersWithSleep(account.getUserId(), date, 3);
         });
         return true;
     }
 
+    @Deprecated
     @Override
     public List<BatchStoreFrontVO> batchQuerySingle(String date, String displayName) {
         if(StringUtils.isEmpty(date)) {
@@ -266,6 +267,7 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
         return sfMapper.batchQuerySingle(date, displayName);
     }
 
+    @Deprecated
     @Override
     public List<BatchStoreFrontVO> batchQueryBonus(String date, String displayName) {
         if(StringUtils.isEmpty(date)) {
@@ -288,6 +290,16 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
         if(!isNowAfterToday8AM()) {
             date = addDays(date, -1);
         }
+
+        boolean isNightShopClosed = sfMapper.isNightShopClosed(date);
+        if(isNightShopClosed) {
+            // 如果夜市关闭，那么使用对应方法进行查询，该方法忽略了有关夜市皮肤的查询条件
+            log.info("夜市关闭，忽略夜市皮肤的查询条件。");
+            return sfMapper.batchQueryBothWhileNightShopClosed(date, skin1, skin2, skin3, skin4);
+        }
+
+        // 如果夜市开放，那么需要对查询结果进行处理
+        log.info("夜市开放。");
         LinkedList<BatchBothStoreFrontVO> list = sfMapper.batchQueryBoth(date, skin1, skin2, skin3, skin4, bonusSkin1, bonusSkin2, bonusSkin3);
         if(CollectionUtils.isNotEmpty(list)) {
             // 把夜市的数据合并到每日商店数据中（两条数据合并为一条）
@@ -300,6 +312,7 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
             }
             // 删除夜市的数据条目
             list.removeIf(BatchBothStoreFrontVO::getIsBonus);
+            log.info("每日商店+夜市 查询结果处理完毕。");
         }
         return list;
     }

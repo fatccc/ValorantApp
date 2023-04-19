@@ -44,6 +44,7 @@ public class StoreFrontController {
         return AjaxResponseUtils.success(sfService.toVO(sfService.bonusOffers(userId, date)));
     }
 
+    @Deprecated
     @PostMapping("/batchUpdateSingle")
     @ResponseBody
     public AjaxResponse batchUpdateSingle() {
@@ -53,6 +54,7 @@ public class StoreFrontController {
         return AjaxResponseUtils.fail();
     }
 
+    @Deprecated
     @PostMapping("/batchUpdateBonus")
     @ResponseBody
     public AjaxResponse batchUpdateBonus() {
@@ -71,12 +73,14 @@ public class StoreFrontController {
         return AjaxResponseUtils.fail();
     }
 
+    @Deprecated
     @GetMapping("/batchQuerySingle")
     @ResponseBody
     public AjaxResponse batchQuerySingle(String displayName) {
         return AjaxResponseUtils.success(sfService.batchQuerySingle(null, displayName));
     }
 
+    @Deprecated
     @GetMapping("/batchQueryBonus")
     @ResponseBody
     public AjaxResponse batchQueryBonus(String displayName) {
