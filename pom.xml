@@ -14,7 +14,7 @@
 
     <groupId>cn.ultronxr</groupId>
     <artifactId>ValorantApp</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <description>瓦罗兰特APP</description>
 
     <properties>

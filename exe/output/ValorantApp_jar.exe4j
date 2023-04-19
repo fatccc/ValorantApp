@@ -9,7 +9,7 @@
       <directory location="../openjdk-11.0.10+9-jre" />
     </searchSequence>
     <classPath>
-      <archive location="D:/AllFilesCode/workspace/IntelliJIDEA/ValorantApp/target/ValorantApp-1.1.jar" failOnError="false" />
+      <archive location="D:/AllFilesCode/workspace/IntelliJIDEA/ValorantApp/target/ValorantApp-1.2.jar" failOnError="false" />
     </classPath>
   </java>
 </exe4j>
