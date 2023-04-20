@@ -83,6 +83,11 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
         if((null == list || list.isEmpty()) && isDateValid(date)) {
             log.info("数据库没有对应的每日商店数据，尝试请求API获取：userId={} , date={}", userId, date);
             JSONObject jObj = requestAPI(userId);
+            if(null == jObj) {
+                log.warn("StoreFront API 请求异常，跳过解析数据。userId={} , date={}", userId, date);
+                return list;
+            }
+
             list = sfAPI.getSingleItemOffers(jObj, userId);
             this.saveOrUpdateBatchByMultiId(list);
 
@@ -125,18 +130,23 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
         JSONObject jObj = null;
         RSO rso = rsoService.fromAccount(userId);
         try {
-            log.info("正在请求 StoreFront API ，userId={}", userId);
+            log.info("StoreFront API 正在请求，userId={}", userId);
             jObj = sfAPI.process(rso);
         } catch (APIUnauthorizedException e1) {
             log.info("RSO token 已过期，尝试更新 token ，userId={}", userId);
             rso = rsoService.updateRSO(userId);
             try {
-                jObj = sfAPI.process(rso);
+                if(rso != null) {
+                    jObj = sfAPI.process(rso);
+                } else {
+                    log.warn("RSO token 尝试更新失败！中止请求API！");
+                    return null;
+                }
             } catch (APIUnauthorizedException e2) {
                 log.warn("StoreFront API 账号验证失败！");
             }
         }
-        log.info("StoreFront API response=\n{}", jObj);
+        log.info("StoreFront API 请求成功，response=\n{}", jObj);
         return jObj;
     }
 

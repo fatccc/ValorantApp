@@ -57,19 +57,19 @@
         <result column="user_id" jdbcType="VARCHAR" property="userId" />
         <result column="is_bonus" jdbcType="TINYINT" property="isBonus" />
         <result column="date" jdbcType="VARCHAR" property="date" />
-        <result column="cost_list" jdbcType="VARCHAR" property="costList" typeHandler="cn.ultronxr.valorant.typeHandler.IntegerArrayTypeHandler" />
-        <result column="discount_percent_list" jdbcType="VARCHAR" property="discountPercentList" typeHandler="cn.ultronxr.valorant.typeHandler.IntegerArrayTypeHandler" />
-        <result column="discount_cost_list" jdbcType="VARCHAR" property="discountCostList" typeHandler="cn.ultronxr.valorant.typeHandler.IntegerArrayTypeHandler" />
-        <result column="display_name_list" jdbcType="VARCHAR" property="displayNameList" typeHandler="cn.ultronxr.valorant.typeHandler.StringArrayTypeHandler" />
+        <result column="cost_list" jdbcType="VARCHAR" property="costList" typeHandler="cn.ultronxr.valorant.typeHandler.IntegerJsonArrayTypeHandler" />
+        <result column="discount_percent_list" jdbcType="VARCHAR" property="discountPercentList" typeHandler="cn.ultronxr.valorant.typeHandler.IntegerJsonArrayTypeHandler" />
+        <result column="discount_cost_list" jdbcType="VARCHAR" property="discountCostList" typeHandler="cn.ultronxr.valorant.typeHandler.IntegerJsonArrayTypeHandler" />
+        <result column="display_name_list" jdbcType="VARCHAR" property="displayNameList" typeHandler="cn.ultronxr.valorant.typeHandler.StringJsonArrayTypeHandler" />
     </resultMap>
 
     <select id="batchQueryBoth" parameterType="java.lang.Object" resultMap="ResultMapBatchBoth">
         SELECT
             account.username, store.user_id, store.is_bonus, store.date,
-            CONCAT('[', GROUP_CONCAT(store.cost), ']') AS cost_list,
-            CONCAT('[', GROUP_CONCAT(store.discount_percent), ']') AS discount_percent_list,
-            CONCAT('[', GROUP_CONCAT(store.discount_cost), ']') AS discount_cost_list,
-            CONCAT('[', GROUP_CONCAT(skin.display_name), ']') AS display_name_list
+            JSON_ARRAYAGG(store.cost) AS cost_list,
+            JSON_ARRAYAGG(store.discount_percent) AS discount_percent_list,
+            JSON_ARRAYAGG(store.discount_cost) AS discount_cost_list,
+            JSON_ARRAYAGG(skin.display_name) AS display_name_list
         FROM
             valorant_store_front AS store, valorant_weapon_skin AS skin, valorant_riot_account AS account
         WHERE
@@ -136,10 +136,10 @@
     <select id="batchQueryBothWhileNightShopClosed" parameterType="java.lang.Object" resultMap="ResultMapBatchBoth">
         SELECT
             account.username, store.user_id, store.is_bonus, store.date,
-            CONCAT('[', GROUP_CONCAT(store.cost), ']') AS cost_list,
-            CONCAT('[', GROUP_CONCAT(store.discount_percent), ']') AS discount_percent_list,
-            CONCAT('[', GROUP_CONCAT(store.discount_cost), ']') AS discount_cost_list,
-            CONCAT('[', GROUP_CONCAT(skin.display_name), ']') AS display_name_list
+            JSON_ARRAYAGG(store.cost) AS cost_list,
+            JSON_ARRAYAGG(store.discount_percent) AS discount_percent_list,
+            JSON_ARRAYAGG(store.discount_cost) AS discount_cost_list,
+            JSON_ARRAYAGG(skin.display_name) AS display_name_list
         FROM
             valorant_store_front AS store, valorant_weapon_skin AS skin, valorant_riot_account AS account
         WHERE
