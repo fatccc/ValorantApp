@@ -7,7 +7,6 @@ import cn.hutool.json.JSONObject;
 import cn.ultronxr.valorant.api.impl.StoreFrontAPI;
 import cn.ultronxr.valorant.auth.RSO;
 import cn.ultronxr.valorant.bean.VO.BatchBothStoreFrontVO;
-import cn.ultronxr.valorant.bean.VO.BatchStoreFrontVO;
 import cn.ultronxr.valorant.bean.VO.StoreFrontVO;
 import cn.ultronxr.valorant.bean.mybatis.bean.RiotAccount;
 import cn.ultronxr.valorant.bean.mybatis.bean.StoreFront;
@@ -225,32 +224,6 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
     }
 
     @Override
-    public boolean batchUpdateSingle() {
-        log.info("批量更新每日商店数据。");
-
-        String date = DateUtil.today();
-        List<RiotAccount> accountList = accountMapper.selectList(null);
-        accountList.forEach(account -> {
-            singleItemOffers(account.getUserId(), date);
-            // sleep
-        });
-        return true;
-    }
-
-    @Override
-    public boolean batchUpdateBonus() {
-        log.info("批量更新夜市数据。");
-
-        String date = DateUtil.today();
-        List<RiotAccount> accountList = accountMapper.selectList(null);
-        accountList.forEach(account -> {
-            bonusOffers(account.getUserId(), date);
-            // sleep
-        });
-        return true;
-    }
-
-    @Override
     public boolean batchUpdateBoth() {
         log.info("批量更新每日商店+夜市数据。");
 
@@ -263,30 +236,6 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
             singleItemOffersWithSleep(account.getUserId(), date, 3);
         });
         return true;
-    }
-
-    @Deprecated
-    @Override
-    public List<BatchStoreFrontVO> batchQuerySingle(String date, String displayName) {
-        if(StringUtils.isEmpty(date)) {
-            date = DateUtil.today();
-        }
-        if(!isNowAfterToday8AM()) {
-            date = addDays(date, -1);
-        }
-        return sfMapper.batchQuerySingle(date, displayName);
-    }
-
-    @Deprecated
-    @Override
-    public List<BatchStoreFrontVO> batchQueryBonus(String date, String displayName) {
-        if(StringUtils.isEmpty(date)) {
-            date = DateUtil.today();
-        }
-        if(!isNowAfterToday8AM()) {
-            date = addDays(date, -1);
-        }
-        return sfMapper.batchQueryBonus(date, displayName);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package cn.ultronxr.valorant.bean.mybatis.mapper;
 
 import cn.ultronxr.valorant.bean.VO.BatchBothStoreFrontVO;
-import cn.ultronxr.valorant.bean.VO.BatchStoreFrontVO;
 import cn.ultronxr.valorant.bean.mybatis.bean.StoreFront;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.jeffreyning.mybatisplus.base.MppBaseMapper;
@@ -9,7 +8,6 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * @author Ultronxr
@@ -17,12 +15,6 @@ import java.util.List;
  * @description
  */
 public interface StoreFrontMapper extends MppBaseMapper<StoreFront> {
-
-    @Deprecated
-    List<BatchStoreFrontVO> batchQuerySingle(@Param("date") String date, @Param("displayName") String displayName);
-
-    @Deprecated
-    List<BatchStoreFrontVO> batchQueryBonus(@Param("date") String date, @Param("displayName") String displayName);
 
     /**
      * 同时查询每日商店和夜市的数据

@@ -1,7 +1,6 @@
 package cn.ultronxr.valorant.service;
 
 import cn.ultronxr.valorant.bean.VO.BatchBothStoreFrontVO;
-import cn.ultronxr.valorant.bean.VO.BatchStoreFrontVO;
 import cn.ultronxr.valorant.bean.VO.StoreFrontVO;
 import cn.ultronxr.valorant.bean.mybatis.bean.StoreFront;
 import com.github.jeffreyning.mybatisplus.service.IMppService;
@@ -48,35 +47,9 @@ public interface StoreFrontService extends IMppService<StoreFront> {
     List<StoreFrontVO> toVO(List<StoreFront> storeFrontList);
 
     /**
-     * 批量更新所有账号的每日商店
-     */
-    @Deprecated
-    boolean batchUpdateSingle();
-
-    /**
-     * 批量更新所有账号的夜市数据
-     */
-    @Deprecated
-    boolean batchUpdateBonus();
-
-    /**
      * 批量更新所有账号的每日商店+夜市
      */
     boolean batchUpdateBoth();
-
-    /**
-     * 查询所有账号的每日商店，是否在指定日期存在指定的皮肤
-     * @return 商品列表
-     */
-    @Deprecated
-    List<BatchStoreFrontVO> batchQuerySingle(String date, String displayName);
-
-    /**
-     * 查询所有账号的夜市，是否在指定日期存在指定的皮肤
-     * @return 商品列表
-     */
-    @Deprecated
-    List<BatchStoreFrontVO> batchQueryBonus(String date, String displayName);
 
     /**
      * 查询所有账号的每日商店+夜市

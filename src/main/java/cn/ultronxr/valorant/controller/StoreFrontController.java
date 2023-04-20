@@ -44,26 +44,6 @@ public class StoreFrontController {
         return AjaxResponseUtils.success(sfService.toVO(sfService.bonusOffers(userId, date)));
     }
 
-    @Deprecated
-    @PostMapping("/batchUpdateSingle")
-    @ResponseBody
-    public AjaxResponse batchUpdateSingle() {
-        if(sfService.batchUpdateSingle()) {
-            return AjaxResponseUtils.success();
-        }
-        return AjaxResponseUtils.fail();
-    }
-
-    @Deprecated
-    @PostMapping("/batchUpdateBonus")
-    @ResponseBody
-    public AjaxResponse batchUpdateBonus() {
-        if(sfService.batchUpdateBonus()) {
-            return AjaxResponseUtils.success();
-        }
-        return AjaxResponseUtils.fail();
-    }
-
     @PostMapping("/batchUpdateBoth")
     @ResponseBody
     public AjaxResponse batchUpdateBoth() {
@@ -71,20 +51,6 @@ public class StoreFrontController {
             return AjaxResponseUtils.success();
         }
         return AjaxResponseUtils.fail();
-    }
-
-    @Deprecated
-    @GetMapping("/batchQuerySingle")
-    @ResponseBody
-    public AjaxResponse batchQuerySingle(String displayName) {
-        return AjaxResponseUtils.success(sfService.batchQuerySingle(null, displayName));
-    }
-
-    @Deprecated
-    @GetMapping("/batchQueryBonus")
-    @ResponseBody
-    public AjaxResponse batchQueryBonus(String displayName) {
-        return AjaxResponseUtils.success(sfService.batchQueryBonus(null, displayName));
     }
 
     @GetMapping("/batchQueryBoth")
