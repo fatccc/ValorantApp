@@ -1,5 +1,6 @@
 package cn.ultronxr.valorant.service;
 
+import cn.ultronxr.valorant.bean.enums.RiotAccountCreateState;
 import cn.ultronxr.valorant.bean.mybatis.bean.RiotAccount;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -12,7 +13,7 @@ import java.util.List;
  */
 public interface RiotAccountService extends IService<RiotAccount> {
 
-    boolean create(RiotAccount account);
+    RiotAccountCreateState create(RiotAccount account);
 
     //boolean update(RiotAccount account);
 

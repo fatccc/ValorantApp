@@ -1,6 +1,7 @@
 package cn.ultronxr.valorant.service.impl;
 
 import cn.ultronxr.valorant.auth.RSO;
+import cn.ultronxr.valorant.bean.enums.RiotAccountCreateState;
 import cn.ultronxr.valorant.bean.mybatis.bean.RiotAccount;
 import cn.ultronxr.valorant.bean.mybatis.mapper.RiotAccountMapper;
 import cn.ultronxr.valorant.service.RSOService;
@@ -32,19 +33,24 @@ public class RiotAccountServiceImpl extends ServiceImpl<RiotAccountMapper, RiotA
 
 
     @Override
-    public boolean create(RiotAccount account) {
+    public RiotAccountCreateState create(RiotAccount account) {
         log.info("添加拳头账号：{}", account);
         RSO rso = rsoService.getRSOByAccount(account);
         if(null != rso) {
             account.setUserId(rso.getUserId());
             account.setAccessToken(rso.getAccessToken());
             account.setEntitlementsToken(rso.getEntitlementsToken());
-            this.save(account);
-            log.info("拳头账号添加成功。username={}", account.getUsername());
-            return true;
+            if(this.getById(account.getUserId()) != null) {
+                log.info("拳头账号添加失败，已存在，重复添加！");
+                return RiotAccountCreateState.DUPLICATE;
+            }
+            if(this.save(account)) {
+                log.info("拳头账号添加成功。username={}", account.getUsername());
+                return RiotAccountCreateState.OK;
+            }
         }
         log.info("拳头账号添加失败，RSO验证未通过！");
-        return false;
+        return RiotAccountCreateState.AUTH_FAILURE;
     }
 
     //@Override

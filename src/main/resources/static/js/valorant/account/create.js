@@ -14,10 +14,12 @@ form.on('submit(create)', function(data) {
                 parent.layer.msg('新增成功。', {time: 2000});
                 closeLayerWindow();
                 parent.refreshTable();
+            } else {
+                parent.layer.msg(res.msg, {time: 2000});
             }
         },
         function (res) {
-            parent.layer.msg('新增失败！', {time: 2000});
+            parent.layer.msg("请求失败！", {time: 2000});
         },
         function () {
             this.layerIndex = layer.load(2, { shade: [0.2, '#ccc'] });

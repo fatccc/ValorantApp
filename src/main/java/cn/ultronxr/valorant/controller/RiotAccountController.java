@@ -3,6 +3,7 @@ package cn.ultronxr.valorant.controller;
 import cn.hutool.http.HttpRequest;
 import cn.ultronxr.common.bean.AjaxResponse;
 import cn.ultronxr.common.util.AjaxResponseUtils;
+import cn.ultronxr.valorant.bean.enums.RiotAccountCreateState;
 import cn.ultronxr.valorant.bean.mybatis.bean.RiotAccount;
 import cn.ultronxr.valorant.exception.RSOMultiFactorAttemptFailedException;
 import cn.ultronxr.valorant.service.RSOService;
@@ -53,10 +54,11 @@ public class RiotAccountController {
     @PostMapping("/create")
     @ResponseBody
     public AjaxResponse create(@RequestBody RiotAccount account) {
-        if(accountService.create(account)) {
-            return AjaxResponseUtils.success();
+        RiotAccountCreateState state = accountService.create(account);
+        if(state == RiotAccountCreateState.OK) {
+            return AjaxResponseUtils.success(state.getMsg());
         }
-        return AjaxResponseUtils.fail("拳头账号验证失败！");
+        return AjaxResponseUtils.fail(state.getMsg());
     }
 
     @DeleteMapping("/delete")
