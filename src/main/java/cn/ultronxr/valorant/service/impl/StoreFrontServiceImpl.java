@@ -233,7 +233,7 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
             // 拳头API速率限制：100 requests every 2 minutes
             // 处理一个账号数据需要请求4-6次API（包括RSO认证），2分钟的请求上限为20个账号，即6秒处理一个账号
             // 实测处理一个账号数据请求时间为1.5秒左右，添加 sleep
-            singleItemOffersWithSleep(account.getUserId(), date, 3);
+            singleItemOffersWithSleep(account.getUserId(), date, 2);
         });
         return true;
     }

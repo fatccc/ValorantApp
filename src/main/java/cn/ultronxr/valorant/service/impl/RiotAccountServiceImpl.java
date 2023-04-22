@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static cn.ultronxr.valorant.bean.enums.RiotAccountCreateState.*;
+
 /**
  * @author Ultronxr
  * @date 2023/02/22 15:11
@@ -34,23 +36,30 @@ public class RiotAccountServiceImpl extends ServiceImpl<RiotAccountMapper, RiotA
 
     @Override
     public RiotAccountCreateState create(RiotAccount account) {
+        if(StringUtils.isBlank(account.getUsername()) || StringUtils.isBlank(account.getPassword())) {
+            log.info("拳头账号添加失败：{}", MISSING_REQUIRED_FIELD);
+            return MISSING_REQUIRED_FIELD;
+        }
+
+        RiotAccount accountInDB = this.getOne(new LambdaQueryWrapper<RiotAccount>().eq(RiotAccount::getUsername, account.getUsername()));
+        if(accountInDB != null) {
+            log.info("拳头账号添加失败：{}", DUPLICATE);
+            return DUPLICATE;
+        }
+
         log.info("添加拳头账号：{}", account);
         RSO rso = rsoService.getRSOByAccount(account);
         if(null != rso) {
             account.setUserId(rso.getUserId());
             account.setAccessToken(rso.getAccessToken());
             account.setEntitlementsToken(rso.getEntitlementsToken());
-            if(this.getById(account.getUserId()) != null) {
-                log.info("拳头账号添加失败，已存在，重复添加！");
-                return RiotAccountCreateState.DUPLICATE;
-            }
             if(this.save(account)) {
                 log.info("拳头账号添加成功。username={}", account.getUsername());
-                return RiotAccountCreateState.OK;
+                return OK;
             }
         }
-        log.info("拳头账号添加失败，RSO验证未通过！");
-        return RiotAccountCreateState.AUTH_FAILURE;
+        log.info("拳头账号添加失败：{}", AUTH_FAILURE);
+        return AUTH_FAILURE;
     }
 
     //@Override

@@ -12,6 +12,7 @@ public enum RiotAccountCreateState {
     OK(1, "添加成功。")
     ,DUPLICATE(0, "账号已存在，请勿重复添加！")
     ,AUTH_FAILURE(-1, "账号密码验证失败！")
+    ,MISSING_REQUIRED_FIELD(-2, "用户名或密码不能为空！")
     ;
 
 
