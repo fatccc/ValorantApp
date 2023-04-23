@@ -1,6 +1,7 @@
 package cn.ultronxr.valorant.service.impl;
 
 import cn.ultronxr.valorant.auth.RSO;
+import cn.ultronxr.valorant.bean.DTO.RiotAccountDTO;
 import cn.ultronxr.valorant.bean.enums.RiotAccountCreateState;
 import cn.ultronxr.valorant.bean.mybatis.bean.RiotAccount;
 import cn.ultronxr.valorant.bean.mybatis.mapper.RiotAccountMapper;
@@ -8,13 +9,12 @@ import cn.ultronxr.valorant.service.RSOService;
 import cn.ultronxr.valorant.service.RiotAccountService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 import static cn.ultronxr.valorant.bean.enums.RiotAccountCreateState.*;
 
@@ -68,17 +68,16 @@ public class RiotAccountServiceImpl extends ServiceImpl<RiotAccountMapper, RiotA
     //}
 
     @Override
-    public List<RiotAccount> queryAccount(RiotAccount account) {
+    public Page<RiotAccount> queryAccount(RiotAccountDTO accountDTO) {
+        Page<RiotAccount> page = Page.of(accountDTO.getCurrent(), accountDTO.getSize());
+
         LambdaQueryWrapper<RiotAccount> wrapper = Wrappers.lambdaQuery();
-        wrapper.select(RiotAccount::getUserId, RiotAccount::getUsername, RiotAccount::getSocialName, RiotAccount::getSocialTag)
+        wrapper.select(RiotAccount::getUserId, RiotAccount::getUsername)
+                .like(StringUtils.isNotEmpty(accountDTO.getUserId()), RiotAccount::getUserId, accountDTO.getUserId())
+                .like(StringUtils.isNotEmpty(accountDTO.getUsername()), RiotAccount::getUsername, accountDTO.getUsername())
                 .orderByAsc(RiotAccount::getUsername);
-        if(null != account) {
-            wrapper.like(StringUtils.isNotEmpty(account.getUserId()), RiotAccount::getUserId, account.getUserId())
-                    .like(StringUtils.isNotEmpty(account.getUsername()), RiotAccount::getUsername, account.getUsername())
-                    .like(StringUtils.isNotEmpty(account.getSocialName()), RiotAccount::getSocialName, account.getSocialName())
-                    .like(StringUtils.isNotEmpty(account.getSocialTag()), RiotAccount::getSocialTag, account.getSocialTag());
-        }
-        return accountMapper.selectList(wrapper);
+
+        return accountMapper.selectPage(page, wrapper);
     }
 
 }

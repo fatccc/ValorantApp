@@ -1,10 +1,10 @@
 package cn.ultronxr.valorant.service;
 
+import cn.ultronxr.valorant.bean.DTO.RiotAccountDTO;
 import cn.ultronxr.valorant.bean.enums.RiotAccountCreateState;
 import cn.ultronxr.valorant.bean.mybatis.bean.RiotAccount;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-
-import java.util.List;
 
 /**
  * @author Ultronxr
@@ -19,9 +19,9 @@ public interface RiotAccountService extends IService<RiotAccount> {
 
     /**
      * 查询拳头账户列表
-     * @param account 查询条件
+     * @param accountDTO 查询条件
      * @return 返回的账户列表中不包含敏感信息（密码、token等）
      */
-    List<RiotAccount> queryAccount(RiotAccount account);
+    Page<RiotAccount> queryAccount(RiotAccountDTO accountDTO);
 
 }

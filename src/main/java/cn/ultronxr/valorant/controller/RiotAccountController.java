@@ -3,6 +3,7 @@ package cn.ultronxr.valorant.controller;
 import cn.hutool.http.HttpRequest;
 import cn.ultronxr.common.bean.AjaxResponse;
 import cn.ultronxr.common.util.AjaxResponseUtils;
+import cn.ultronxr.valorant.bean.DTO.RiotAccountDTO;
 import cn.ultronxr.valorant.bean.enums.RiotAccountCreateState;
 import cn.ultronxr.valorant.bean.mybatis.bean.RiotAccount;
 import cn.ultronxr.valorant.exception.RSOMultiFactorAttemptFailedException;
@@ -81,8 +82,8 @@ public class RiotAccountController {
 
     @PostMapping("/query")
     @ResponseBody
-    public AjaxResponse query(@RequestBody RiotAccount account) {
-        return AjaxResponseUtils.success(accountService.queryAccount(account));
+    public AjaxResponse query(@RequestBody RiotAccountDTO accountDTO) {
+        return AjaxResponseUtils.success(accountService.queryAccount(accountDTO));
     }
 
     @GetMapping("/select")

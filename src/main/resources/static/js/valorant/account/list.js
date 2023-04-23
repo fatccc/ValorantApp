@@ -8,34 +8,35 @@ function loadAllSelect() {
 table.render({
     elem: '#data-table'
     ,id: 'dataTable'
-    ,height: 500
+    // ,height: 500
     ,cols: [[ //表头
         {type: 'checkbox', fixed: 'left'}
         ,{field: 'userId', title: 'ID', sort: true, hide: false}
         ,{field: 'username', title: '用户名', sort: true}
-        // ,{field: 'socialName', title: '拳头社交名称', sort: true}
-        // ,{field: 'socialTag', title: '社交标签', sort: true}
         ,{title:'操作', width: 125, minWidth: 125, fixed: 'right', toolbar: '#inlineToolbar'}
     ]]
     ,toolbar: '#toolbar'
     ,defaultToolbar: [] //清空默认的三个工具栏按钮
     ,totalRow: false
+    ,loading: true
 
     ,url: app.util.api.getAPIUrl('valorant.account.query')
     ,method: 'POST'
     ,contentType: 'application/json'
     ,headers: {}
     ,where: {}
-    ,page: false //分页
-    ,before: function(req) {
-        let authToken = app.util.token.auth.get();
-        if(app.util.string.isNotEmpty(authToken)) {
-            req.headers["Authorization"] = "Bearer " + authToken;
-        }
-    }
+    ,page: true //分页
+    ,limit: 100
+    ,limits: [100, 200, 300, 400, 500]
+    // ,before: function(req) {
+    //     let authToken = app.util.token.auth.get();
+    //     if(app.util.string.isNotEmpty(authToken)) {
+    //         req.headers["Authorization"] = "Bearer " + authToken;
+    //     }
+    // }
     ,request: {
-        // pageName: 'page' //页码的参数名称，默认：page
-        // ,limitName: 'limit' //每页数据量的参数名，默认：limit
+        pageName: 'current' //页码的参数名称，默认：page
+        ,limitName: 'size' //每页数据量的参数名，默认：limit
     }
     ,response: {
         statusName: 'code' //规定数据状态的字段名称，默认：code
@@ -49,8 +50,8 @@ table.render({
         return {
             "code": res.code,
             "msg": res.msg,
-            "count": res.total,
-            "data": res.data
+            "count": res.data.total,
+            "data": res.data.records
         };
     }
 });
@@ -72,16 +73,12 @@ var active = {
             where: { //设定异步数据接口的额外参数
                 userId: $("#userId").val(),
                 username: $("#username").val(),
-                // socialName: $("#socialName").val(),
-                // socialTag: $("#socialTag").val(),
             }
         });
     },
     clear: function () {
         $("#userId").val("");
         $("#username").val("");
-        // $("#socialName").val("");
-        // $("#socialTag").val("");
         refreshTable();
         form.render('select');
     }

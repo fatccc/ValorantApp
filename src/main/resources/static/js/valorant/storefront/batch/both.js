@@ -580,10 +580,11 @@ table.render({
             }}
     ]]
     ,totalRow: false
+    ,loading: true
 
     ,url: app.util.api.getAPIUrl('valorant.storefront.batchQueryBoth')
-    ,method: 'GET'
-    // ,contentType: 'application/json'
+    ,method: 'POST'
+    ,contentType: 'application/json'
     ,headers: {}
     ,where: {
         skin1: $('#skin1').val(),
@@ -594,16 +595,18 @@ table.render({
         bonusSkin2: $('#bonusSkin2').val(),
         bonusSkin3: $('#bonusSkin3').val(),
     }
-    ,page: false //分页
-    ,before: function(req) {
-        let authToken = app.util.token.auth.get();
-        if(app.util.string.isNotEmpty(authToken)) {
-            req.headers["Authorization"] = "Bearer " + authToken;
-        }
-    }
+    ,page: true //分页
+    ,limit: 100
+    ,limits: [100, 200, 300, 400, 500]
+    // ,before: function(req) {
+    //     let authToken = app.util.token.auth.get();
+    //     if(app.util.string.isNotEmpty(authToken)) {
+    //         req.headers["Authorization"] = "Bearer " + authToken;
+    //     }
+    // }
     ,request: {
-        // pageName: 'page' //页码的参数名称，默认：page
-        // ,limitName: 'limit' //每页数据量的参数名，默认：limit
+        pageName: 'current' //页码的参数名称，默认：page
+        ,limitName: 'size' //每页数据量的参数名，默认：limit
     }
     ,response: {
         statusName: 'code' //规定数据状态的字段名称，默认：code
@@ -617,8 +620,8 @@ table.render({
         return {
             "code": res.code,
             "msg": res.msg,
-            "count": res.total,
-            "data": res.data
+            "count": res.data.total,
+            "data": res.data.records
         };
     }
 });

@@ -6,6 +6,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONObject;
 import cn.ultronxr.valorant.api.impl.StoreFrontAPI;
 import cn.ultronxr.valorant.auth.RSO;
+import cn.ultronxr.valorant.bean.DTO.BatchQueryBothDTO;
 import cn.ultronxr.valorant.bean.VO.BatchBothStoreFrontVO;
 import cn.ultronxr.valorant.bean.VO.StoreFrontVO;
 import cn.ultronxr.valorant.bean.mybatis.bean.RiotAccount;
@@ -17,7 +18,9 @@ import cn.ultronxr.valorant.service.RSOService;
 import cn.ultronxr.valorant.service.StoreFrontService;
 import cn.ultronxr.valorant.service.WeaponSkinService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.jeffreyning.mybatisplus.service.MppServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -239,30 +242,29 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
     }
 
     @Override
-    public List<BatchBothStoreFrontVO> batchQueryBoth(String date, String skin1, String skin2, String skin3, String skin4,
-                                                      String bonusSkin1, String bonusSkin2, String bonusSkin3) {
-        log.info("批量查询每日商店+夜市数据，date={}, skin1={}, skin2={}, skin3={}, skin4={}, bonusSkin1={}, bonusSkin2={}, bonusSkin3={}",
-                date, skin1, skin2, skin3, skin4, bonusSkin1, bonusSkin2, bonusSkin3);
-        if(StringUtils.isEmpty(date)) {
-            date = DateUtil.today();
+    public IPage<BatchBothStoreFrontVO> batchQueryBoth(BatchQueryBothDTO batchQueryBothDTO) {
+        log.info("批量查询每日商店+夜市数据，batchQueryBothDTO={}", batchQueryBothDTO);
+        if(StringUtils.isEmpty(batchQueryBothDTO.getDate())) {
+            batchQueryBothDTO.setDate(DateUtil.today());
         }
         if(!isNowAfterToday8AM()) {
-            date = addDays(date, -1);
+            batchQueryBothDTO.setDate(addDays(batchQueryBothDTO.getDate(), -1));
         }
 
-        boolean isNightShopClosed = sfMapper.isNightShopClosed(date);
+        boolean isNightShopClosed = sfMapper.isNightShopClosed(batchQueryBothDTO.getDate());
         if(isNightShopClosed) {
             // 如果夜市关闭，那么使用对应方法进行查询，该方法忽略了有关夜市皮肤的查询条件
             log.info("夜市关闭，忽略夜市皮肤的查询条件。");
-            return sfMapper.batchQueryBothWhileNightShopClosed(date, skin1, skin2, skin3, skin4);
+            return sfMapper.batchQueryBothWhileNightShopClosed(Page.of(batchQueryBothDTO.getCurrent(), batchQueryBothDTO.getSize()), batchQueryBothDTO);
         }
 
         // 如果夜市开放，那么需要对查询结果进行处理
         log.info("夜市开放。");
-        LinkedList<BatchBothStoreFrontVO> list = sfMapper.batchQueryBoth(date, skin1, skin2, skin3, skin4, bonusSkin1, bonusSkin2, bonusSkin3);
-        if(CollectionUtils.isNotEmpty(list)) {
+        IPage<BatchBothStoreFrontVO> result = sfMapper.batchQueryBoth(Page.of(batchQueryBothDTO.getCurrent(), batchQueryBothDTO.getSize()), batchQueryBothDTO);
+        if(CollectionUtils.isNotEmpty(result.getRecords())) {
             // 把夜市的数据合并到每日商店数据中（两条数据合并为一条）
             // SQL查询出来的总是 同一个账号的两条数据相连，且每日商店数据在夜市数据前面
+            List<BatchBothStoreFrontVO> list = result.getRecords();
             for (int i = 0; i < list.size() - 1; i++) {
                 if(!list.get(i).getIsBonus() && list.get(i+1).getIsBonus()
                         && list.get(i).getUserId().equals(list.get(i+1).getUserId())) {
@@ -271,9 +273,11 @@ public class StoreFrontServiceImpl extends MppServiceImpl<StoreFrontMapper, Stor
             }
             // 删除夜市的数据条目
             list.removeIf(BatchBothStoreFrontVO::getIsBonus);
+            result.setRecords(list);
+            result.setTotal(list.size());
             log.info("每日商店+夜市 查询结果处理完毕。");
         }
-        return list;
+        return result;
     }
 
 }

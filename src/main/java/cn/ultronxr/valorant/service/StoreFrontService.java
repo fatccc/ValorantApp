@@ -1,8 +1,10 @@
 package cn.ultronxr.valorant.service;
 
+import cn.ultronxr.valorant.bean.DTO.BatchQueryBothDTO;
 import cn.ultronxr.valorant.bean.VO.BatchBothStoreFrontVO;
 import cn.ultronxr.valorant.bean.VO.StoreFrontVO;
 import cn.ultronxr.valorant.bean.mybatis.bean.StoreFront;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.jeffreyning.mybatisplus.service.IMppService;
 
 import java.util.List;
@@ -55,7 +57,6 @@ public interface StoreFrontService extends IMppService<StoreFront> {
      * 查询所有账号的每日商店+夜市
      * @return 商品列表
      */
-    List<BatchBothStoreFrontVO> batchQueryBoth(String date, String skin1, String skin2, String skin3, String skin4,
-                                               String bonusSkin1, String bonusSkin2, String bonusSkin3);
+    IPage<BatchBothStoreFrontVO> batchQueryBoth(BatchQueryBothDTO batchQueryBothDTO);
 
 }

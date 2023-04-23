@@ -25,7 +25,7 @@
         WHERE
             store.item_id = skin.uuid
             AND store.user_id = account.user_id
-            AND store.date >= #{date}
+            AND store.date >= #{batchQueryBothDTO.date}
             AND store.user_id IN
                 (SELECT single.user_id FROM (
                     (SELECT
@@ -34,23 +34,23 @@
                         valorant_store_front AS store, valorant_weapon_skin AS skin
                     WHERE
                         store.item_id = skin.uuid
-                        AND store.date = #{date}
+                        AND store.date = #{batchQueryBothDTO.date}
                         AND store.is_bonus = 0
                     GROUP BY
                         store.user_id, store.is_bonus, store.date
                     HAVING
                         1
-                        <if test="skin1 != null">
-                            AND display_name_list LIKE CONCAT('%', #{skin1}, '%')
+                        <if test="batchQueryBothDTO.skin1 != null">
+                            AND display_name_list LIKE CONCAT('%', #{batchQueryBothDTO.skin1}, '%')
                         </if>
-                        <if test="skin2 != null">
-                            AND display_name_list LIKE CONCAT('%', #{skin2}, '%')
+                        <if test="batchQueryBothDTO.skin2 != null">
+                            AND display_name_list LIKE CONCAT('%', #{batchQueryBothDTO.skin2}, '%')
                         </if>
-                        <if test="skin3 != null">
-                            AND display_name_list LIKE CONCAT('%', #{skin3}, '%')
+                        <if test="batchQueryBothDTO.skin3 != null">
+                            AND display_name_list LIKE CONCAT('%', #{batchQueryBothDTO.skin3}, '%')
                         </if>
-                        <if test="skin4 != null">
-                            AND display_name_list LIKE CONCAT('%', #{skin4}, '%')
+                        <if test="batchQueryBothDTO.skin4 != null">
+                            AND display_name_list LIKE CONCAT('%', #{batchQueryBothDTO.skin4}, '%')
                         </if>
                     ) AS single
                 INNER JOIN
@@ -60,27 +60,27 @@
                         valorant_store_front AS store, valorant_weapon_skin AS skin
                     WHERE
                         store.item_id = skin.uuid
-                        AND store.date >= #{date}
+                        AND store.date >= #{batchQueryBothDTO.date}
                         AND store.is_bonus = 1
                     GROUP BY
                         store.user_id, store.is_bonus, store.date
                     HAVING
                         1
-                        <if test="bonusSkin1 != null">
-                            AND display_name_list LIKE CONCAT('%', #{bonusSkin1}, '%')
+                        <if test="batchQueryBothDTO.bonusSkin1 != null">
+                            AND display_name_list LIKE CONCAT('%', #{batchQueryBothDTO.bonusSkin1}, '%')
                         </if>
-                        <if test="bonusSkin2 != null">
-                            AND display_name_list LIKE CONCAT('%', #{bonusSkin2}, '%')
+                        <if test="batchQueryBothDTO.bonusSkin2 != null">
+                            AND display_name_list LIKE CONCAT('%', #{batchQueryBothDTO.bonusSkin2}, '%')
                         </if>
-                        <if test="bonusSkin3 != null">
-                            AND display_name_list LIKE CONCAT('%', #{bonusSkin3}, '%')
+                        <if test="batchQueryBothDTO.bonusSkin3 != null">
+                            AND display_name_list LIKE CONCAT('%', #{batchQueryBothDTO.bonusSkin3}, '%')
                         </if>
                     ) AS bonus
                 ON single.user_id = bonus.user_id))
         GROUP BY
             store.user_id, store.is_bonus, store.date
         ORDER BY
-            user_id ASC, is_bonus ASC
+            account.username ASC, is_bonus ASC
     </select>
 
     <select id="batchQueryBothWhileNightShopClosed" parameterType="java.lang.Object" resultMap="ResultMapBatchBoth">
@@ -95,7 +95,7 @@
         WHERE
             store.item_id = skin.uuid
             AND store.user_id = account.user_id
-            AND store.date = #{date}
+            AND store.date = #{batchQueryBothDTO.date}
             AND store.user_id IN
                 (SELECT
                     store.user_id
@@ -103,29 +103,29 @@
                     valorant_store_front AS store, valorant_weapon_skin AS skin
                 WHERE
                     store.item_id = skin.uuid
-                    AND store.date = #{date}
+                    AND store.date = #{batchQueryBothDTO.date}
                     AND store.is_bonus = 0
                 GROUP BY
                     store.user_id, store.is_bonus, store.date
                 HAVING
                     1
-                    <if test="skin1 != null">
-                        AND GROUP_CONCAT(skin.display_name) LIKE CONCAT('%', #{skin1}, '%')
+                    <if test="batchQueryBothDTO.skin1 != null">
+                        AND GROUP_CONCAT(skin.display_name) LIKE CONCAT('%', #{batchQueryBothDTO.skin1}, '%')
                     </if>
-                    <if test="skin2 != null">
-                        AND GROUP_CONCAT(skin.display_name) LIKE CONCAT('%', #{skin2}, '%')
+                    <if test="batchQueryBothDTO.skin2 != null">
+                        AND GROUP_CONCAT(skin.display_name) LIKE CONCAT('%', #{batchQueryBothDTO.skin2}, '%')
                     </if>
-                    <if test="skin3 != null">
-                        AND GROUP_CONCAT(skin.display_name) LIKE CONCAT('%', #{skin3}, '%')
+                    <if test="batchQueryBothDTO.skin3 != null">
+                        AND GROUP_CONCAT(skin.display_name) LIKE CONCAT('%', #{batchQueryBothDTO.skin3}, '%')
                     </if>
-                    <if test="skin4 != null">
-                        AND GROUP_CONCAT(skin.display_name) LIKE CONCAT('%', #{skin4}, '%')
+                    <if test="batchQueryBothDTO.skin4 != null">
+                        AND GROUP_CONCAT(skin.display_name) LIKE CONCAT('%', #{batchQueryBothDTO.skin4}, '%')
                     </if>
                 )
         GROUP BY
             store.user_id, store.is_bonus, store.date
         ORDER BY
-            user_id ASC, is_bonus ASC
+            account.username ASC, is_bonus ASC
     </select>
 
 </mapper>
